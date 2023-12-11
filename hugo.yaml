@@ -1,0 +1,18 @@
+baseURL: https://me.vincentbockaert.xyz/
+languageCode: en-us
+title: It's-a Me, Vinnie!
+theme: "PaperMod"
+params:
+  defaultTheme: auto
+
+  homeInfoParams:
+    Title: Welcome to my personal little corner on the internet :)
+    Content: Here you can find links to my "socials" as well as posts about hobby-activities, either IT or otherwise related.
+  
+  socialIcons:
+    - name: "GitHub"
+      url: https://github.com/vincentbockaert
+    - name: "Keybase"
+      url: https://keybase.io/vincentbockaert
+    - name: LinkedIn
+      url: https://www.linkedin.com/in/vincent-b-b6291a142/
