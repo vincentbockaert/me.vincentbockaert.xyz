@@ -1,4 +1,4 @@
-baseURL: https://me.vincentbockaert.xyz/
+baseURL: https://vincentbockaert.xyz/
 languageCode: en-us
 title: It's-a Me, Vinnie!
 theme: "PaperMod"
@@ -14,5 +14,5 @@ params:
       url: https://github.com/vincentbockaert
     - name: "Keybase"
       url: https://keybase.io/vincentbockaert
-    - name: LinkedIn
+    - name: "LinkedIn"
       url: https://www.linkedin.com/in/vincent-b-b6291a142/
