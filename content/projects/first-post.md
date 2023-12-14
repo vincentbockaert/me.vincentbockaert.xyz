@@ -1,8 +1,12 @@
-+++
-title = 'How I "created" this very site'
-date = 2023-12-11T19:10:50+01:00
-draft = false
-+++
+---
+title: 'How I "created" this very site'
+date: 2023-12-11T19:10:50+01:00
+draft: false
+tags:
+  - DevOps
+  - Cloudflare
+  - Golang
+---
 
 ## Introduction
 

@@ -7,7 +7,7 @@ params:
 
   homeInfoParams:
     Title: Welcome to my personal little corner on the internet :)
-    Content: Here you can find links to my "socials" as well as posts about hobby-activities, either IT or otherwise related.
+    Content: Here you can find links to my "socials", but also articles concerning DevOps/Sysadmin/Cloud technologies and more.
   
   socialIcons:
     - name: "GitHub"
@@ -16,3 +16,22 @@ params:
       url: https://keybase.io/vincentbockaert
     - name: "LinkedIn"
       url: https://www.linkedin.com/in/vincent-b-b6291a142/
+
+menu:
+  main:
+    - identifier: projects
+      name: Projects
+      url: /projects/
+      weight: 10
+    - identifier: tags
+      name: Tags
+      url: /tags/
+      weight: 20
+    # - identifier: Google
+    #   name: google.com
+    #   url: https://google.be
+    #   weight: 30
+
+taxonomies:
+  tag: tags
+  category: categories
