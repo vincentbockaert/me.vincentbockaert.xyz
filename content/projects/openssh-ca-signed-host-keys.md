@@ -17,22 +17,23 @@ While I was setting them up I was reminded of the "TOFU" (Trust-on-first-use) fl
 
 TLDR: when you connect to a ssh server for the first time you are presented with a identifier of the server's public key.
 You are prompted to verify that this key is the expected one and *really* comes from the server you are trying to connect to.
-In TOFU, you simply accept this public to store it locally, on the assumption that it's your first encounter. 
+With TOFU, you simply accept this public key which is then stored locally for any future connections. 
 
 This looks like the below:
 
 ![image showing the tofu prompt](/img/projects/openssh-ca-signed-host-key/tofu-ssh.webp)
 
-While it's unlikely that your connection is hijacked and you are served a fake server, unlikely does not mean impossible, thus a fix was needed :P, enter OpenSSH CA Signed Host Keys.
+While it's unlikely that a connection gets hijacked and a fake server is being served, unlikely does not mean impossible, thus a fix is needed :P, ***enter OpenSSH CA Signed Host Keys***.
 
-A longer explanation can be found [here](https://chat.openai.com/share/5bfcbcf3-8fa2-4dba-af82-09f70e81c818) by our AI overlords.
+A longer explanation, *written by the AI Overlords*, can be found [here](https://chat.openai.com/share/5bfcbcf3-8fa2-4dba-af82-09f70e81c818).
 
 ## OpenSSH CA Signed Host Keys
 
-In SSH, there are the standard flows of passwords and public/private keypairs for authentication, what less people know is that you can also use a Certificate Authority mechanism to build on top of the public/private keypair flow.
+In SSH, there are the standard flows of passwords and public/private keypairs for authentication. 
+What less people know, is that you can also use the Certificate Authority mechanism to build on top of the public/private keypair flow.
 
 This CA mechanism would solve our TOFO problem, since instead of blindly trusting the first server we connect to, we can rely on the CA as a *trusted third party*, just like the public web works with HTTPS.
-Additionally this *trusted third party* would actually be ourselves if we own and manage the CA private key ourselves.
+Additionally this *trusted third party* would actually be ourselves if we own and manage the CA private key.
 
 So how does it work in practical terms?
 
@@ -45,6 +46,7 @@ ssh-keygen -t ed25519 -f HostKeyCA -C HostKeyCA
 ```
 
 Next, we need to sign the server's host keypairs with this CA keypair:
+
 ```bash
 # assuming this is the DNS name for your server
 export FQDN="server1.example.com" 
@@ -70,7 +72,7 @@ And finally, we should reload the ssh service to apply the changes.
 systemctl reload sshd
 ```
 
-Now on the local system we can tell our ssh client to trust this certificate authority using: 
+Now on the local system, we can tell our ssh client to trust this certificate authority using: 
 
 ```bash
 echo "@cert-authority * $(cat HostCA.pub)" >> ~/.ssh/known_hosts
@@ -78,38 +80,36 @@ echo "@cert-authority * $(cat HostCA.pub)" >> ~/.ssh/known_hosts
 
 ### Problems with manual approach
 
-In the above steps I outlined the basic steps to configure a OpenSSH Host Keys using a Certificate Authority, however there are some glaring flaws:
+In the above steps, I outlined the basic steps to configure a OpenSSH Host Keys using a Certificate Authority, however there are some glaring flaws:
 
-- you need to upload the CA's keypair to the server
-  - this implies you connecting to the server ... thus you would still do TOFU ...
-- it's a hassle to do this manually and could easily lock yourself out if done incorrectly
+- The CA keypair needs to be uploaded to the server by a system administrator
+  - *this implies you connecting to the server ... **thus you would still do TOFU** ...*
+- It's a hassle to do the run the commands manually and one could easily lock themselves out, if done incorrectly
 
-So ... if we do it manually we're still stuck with TOFU.
+In essence: if we do it manually, we're still stuck with TOFU.
 
 ## Terraform + cloud-init to the rescue
 
-There is a solution in the form of two Infrastructure-as-Code tools, namely terraform and cloud-init.
+There is a solution by using two Infrastructure-as-Code tools, namely terraform and cloud-init.
 
 Using terraform, we can create servers automatically + generate and manage a CA keypair. 
 Additionally most cloud providers, if not all, allow you to pass a cloud-init file to the server resource, which allows us to configure the server as needed on first boot.
 
-In my case I'm using Hetzner Cloud, thus to provision the servers in Terraform I have the following snippet:
+In my case I'm using Hetzner Cloud, so to provision the hetzner cloud servers in Terraform I have the following snippet:
 
 {{< ghcode "https://raw.githubusercontent.com/vincentbockaert/tf-hcloud-infra/master/compute.tf" >}}
 
-In the above code, all that's done is creating two server resources with the following:
+In the above code, two server resources are created with the following:
 
-- passing in a template-rendered cloud-init config
-- some labels (which I use in other code)
-- a default ssh key usable to authenticate as the root user
-  - this is disabled via cloud-init, instead a sudo-user is created
-- configuring public addresses
+- Passing in a template-rendered cloud-init config
+- Some labels (which I use in other code)
+- A default ssh key usable to authenticate as the root user
+  - This is disabled via cloud-init, instead a sudo-user is created
+- Configuring public addresses
 
-*(Technically I'm creating multiple using the count method, but let's ignore that for now)*
+*(Technically I'm creating multiple of these resouces using the count method, but let's ignore that as it's not relevant.)*
 
-As can be seen in the above code, I'm creating a server and passing a rendered cloud-init configuration.
-
-So let's create this file and configure it to make a sudo-user, assigning the ssh public key *(which we get through the Terraform template renderer)* and disable the root user.
+As mentioned a rendered cloud-init configuration is passed, so let's create this file and configure it to make a sudo-user, assigning the ssh public key *(which we get through the Terraform template renderer)* and disable the root user.
 
 ```yaml
 #cloud-config
@@ -127,7 +127,7 @@ ssh_pwauth: false
 disable_root: true
 ```
 
-Now that the root user is disabled but we can use a sudo-powered user, we can configure the CA Signed Host Keys:
+Now the root user is disabled but we can still use a sudo-powered user, we can configure the CA Signed Host Keys:
 
 ```yaml
 fqdn: ${fqdn}
