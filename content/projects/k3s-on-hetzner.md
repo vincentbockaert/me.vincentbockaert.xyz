@@ -18,7 +18,7 @@ Recently, I found myself wanting to learn more about kubernetes, as well as spen
 Renting a cluster from cloud providers like Azure, GCP and AWS, is straightforward but then I'd have cough up a lot of money for little compute.
 Additionally, I wouldn't really be managing the servers or nodes if I went with a managed solution.
 
-Let's be honest... setting it yourself is part of the fun :D
+Let's be honest... setting it up yourself is part of the fun.
 
  _(Note: Google does have a very limited free-tier)_
 
