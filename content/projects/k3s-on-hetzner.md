@@ -1,5 +1,5 @@
 ---
-title: 'K3s on Hetzner'
+title: 'k3s on Hetzner'
 date: "2024-02-02T18:34:46+01:00"
 draft: false
 tags:
