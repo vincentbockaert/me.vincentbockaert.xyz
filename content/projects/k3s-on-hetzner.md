@@ -137,7 +137,7 @@ For the server configuration:
 - a cloud-init file is passed to `user_data` to set up
     - a dedicated sudo user
     - block root over ssh 
-    - and configure CA Signed Trusted Host SSH keys, see more info here {{< ref "/projects/openssh-ca-signed-host-keys.md" >}}
+    - and configure CA Signed Trusted Host SSH keys, see more info [here]({{< ref "/projects/openssh-ca-signed-host-keys.md" >}})
 - some labels are added identifying their use for "k3s", which is used in the firewall resource to know on which servers to apply the rules to
 
 As mentioned, the `count` operator is used to specify how many servers we want, which is passed along using a _locals block_
@@ -319,7 +319,7 @@ While the latter, `hcloud-csi`, is a Container Storage Interface driver enabling
 Luckily for us, Hetzner Cloud has provided 2 excellent helm charts to implement this kind of integration for us.
 
 However, to establish communication with the API's from Hetzner, some extra configuration is needed.
-For starters a kubernetes secret is needed, which we'll put in a namespace dedicated to this kind of "_operations_" work.
+For starters a kubernetes secret is needed, [containing a api token for hcloud](https://docs.hetzner.com/cloud/api/getting-started/generating-api-token/), which we'll put in a namespace dedicated to this kind of "_operations_" work.
 
 ```bash
 kubectl create ns ops-tools
