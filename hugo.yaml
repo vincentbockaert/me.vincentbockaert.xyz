@@ -1,12 +1,12 @@
 baseURL: https://vincentbockaert.xyz/
 languageCode: en-us
-title: It's-a Me, Vinnie!
+title: It's a title bro, what did you expect?
 theme: "PaperMod"
 params:
   defaultTheme: auto
 
   homeInfoParams:
-    Title: Welcome to my personal little corner on the internet :)
+    Title: Welcome to my (Vincent Bockaert) personal little corner on the internet :)
     Content: Here you can find links to my "socials", but also articles concerning DevOps/Sysadmin/Cloud technologies and more.
   
   socialIcons:

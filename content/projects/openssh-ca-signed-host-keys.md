@@ -1,12 +1,13 @@
 ---
 title: 'OpenSSH CA Signed Host Keys'
-date: 2024-01-27T21:43:46+01:00
+date: "2024-01-27T21:43:46+01:00"
 draft: false
 tags:
   - DevOps
   - OpenSSH
   - CA
   - cloud-init
+  - Hetzner cloud
 ---
 
 ## Introduction
