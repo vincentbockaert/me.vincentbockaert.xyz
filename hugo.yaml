@@ -6,8 +6,8 @@ params:
   defaultTheme: auto
 
   homeInfoParams:
-    Title: Welcome to my (Vincent Bockaert) personal little corner on the internet :)
-    Content: Here you can find links to my "socials", but also articles concerning DevOps/Sysadmin/Cloud technologies and more.
+    Title: Welcome to my own little corner on the internet.
+    Content: Here you can find links to my (Vincent Bockaert's) "socials", but also articles concerning DevOps/Sysadmin/Cloud technologies and more.
   
   socialIcons:  
     - name: "GitHub"
