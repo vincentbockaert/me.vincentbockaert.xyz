@@ -98,7 +98,35 @@ Additionally most cloud providers, if not all, allow you to pass a cloud-init fi
 
 In my case I'm using Hetzner Cloud, so to provision the hetzner cloud servers in Terraform I have the following snippet:
 
-{{< ghcode "https://raw.githubusercontent.com/vincentbockaert/tf-hcloud-infra/master/compute.tf" >}}
+
+```terraform
+resource "hcloud_server" "k3s_server" {
+  count       = local.k3s_server_count
+  name        = "server${count.index}.k3s.${terraform.workspace}.hc.vincentbockaert.xyz"
+  server_type = "cax11"
+  image       = "debian-12"
+  datacenter  = "nbg1-dc3"
+  user_data   = data.template_cloudinit_config.k3s_server[count.index].rendered
+  labels = {
+    "Environment" = terraform.workspace
+    "Arch"        = "ARM64"
+    "NodeNumber"  = count.index
+    "k3s"         = "server"
+  }
+  ssh_keys = [
+    hcloud_ssh_key.this.id
+  ]
+  public_net {
+    ipv4_enabled = true # really wish i didnt need this ... but holy f there are too many services IPv4 only and I dont want to a NAT64 service
+    ipv6_enabled = true
+  }
+}
+
+resource "hcloud_ssh_key" "this" {
+  name       = "default"
+  public_key = var.defaultSSHPublicKey
+}
+```
 
 In the above code, two server resources are created with the following:
 
@@ -172,12 +200,80 @@ The template resource allows one to use variable substition for rendering the cl
 
 For example:
 
-{{< ghcode "https://raw.githubusercontent.com/vincentbockaert/tf-hcloud-infra/master/cloud-init.tf" >}}
+```terraform
+data "template_cloudinit_config" "k3s_agent" {
+
+  count = local.k3s_agent_count
+
+  part {
+    filename     = "node-init.yml"
+    content_type = "text/cloud-config"
+    content      = data.template_file.k3s_agent[count.index].rendered
+  }
+
+  gzip          = true
+  base64_encode = true
+}
+
+data "template_file" "k3s_agent" {
+
+  count = local.k3s_agent_count
+
+  template = file("cloud-init.yml")
+
+  vars = {
+    username            = var.node_ssh_username
+    defaultSSHPublicKey = hcloud_ssh_key.this.public_key
+    HostCAPrivateKey    = base64encode(tls_private_key.ca_host_key.private_key_openssh)
+    HostCAPublicKey     = tls_private_key.ca_host_key.public_key_openssh
+    fqdn                = "agent${count.index}.k3s.${terraform.workspace}.hc.vincentbockaert.xyz"
+  }
+}
+
+data "template_cloudinit_config" "k3s_server" {
+
+  count = local.k3s_server_count
+
+  part {
+    filename     = "node-init.yml"
+    content_type = "text/cloud-config"
+    content      = data.template_file.k3s_server[count.index].rendered
+  }
+
+  gzip          = true
+  base64_encode = true
+}
+
+data "template_file" "k3s_server" {
+
+  count = local.k3s_server_count
+
+  template = file("cloud-init.yml")
+
+  vars = {
+    username            = var.node_ssh_username
+    defaultSSHPublicKey = hcloud_ssh_key.this.public_key
+    HostCAPrivateKey    = base64encode(tls_private_key.ca_host_key.private_key_openssh)
+    HostCAPublicKey     = tls_private_key.ca_host_key.public_key_openssh
+    fqdn                = "server${count.index}.k3s.${terraform.workspace}.hc.vincentbockaert.xyz"
+  }
+}
+```
+
 <br>
 
 And finally ... we can't forget to actually create the CA keypair that is used on the server and passed along to cloud-init, via the template resources.
 
-{{< ghcode "https://raw.githubusercontent.com/vincentbockaert/tf-hcloud-infra/master/ssh-ca.tf" >}}
+
+```terraform
+resource "tls_private_key" "ca_host_key" {
+  algorithm = "ED25519" # most modern, RSA and ECDSA can also be used
+}
+
+resource "tls_private_key" "ca_user_key" {
+  algorithm = "ED25519" # most modern, RSA and ECDSA can also be used
+}
+```
 
 Sadly ... we still have final manual step for the client / local systems where the ssh client need to be set to trust this certificate authority.
 For this, the terraform output as seen below will generate a nice command, simply copy-paste the output into a terminal. 
