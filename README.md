@@ -16,3 +16,11 @@ simply run the below command and the static content will be generated into a `pu
 ```bash
 hugo
 ```
+
+to then serve the content we could use for example a caddy server:
+
+```bash
+podman run -d -p 8000:80 \
+    -v $PWD/public:/usr/share/caddy \
+    caddy
+```
